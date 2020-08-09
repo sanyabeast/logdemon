@@ -26,7 +26,7 @@ color is an optional part of argument query
 Using XMLHttpREquest (JS)
 ```javascript
 let x = new XMLHttpRequest()
-x.open("get", `localhost:8716/${JSON.stringify({
+x.open("get", `localhost:8002/${JSON.stringify({
   "event": "log",
   "source: "Rihanna",
   "data":{
