@@ -1,6 +1,6 @@
 
 # LOGDEMON
-Easy-to0use python-based websocket`s text-logging server
+Easy-to-use python-based websocket`s text-logging server
 
 ## Launching Server
 
