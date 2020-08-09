@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    rel="stylesheet">
+
+    <style type="text/css">
+        ::-webkit-scrollbar {
+          width: 2px;
+          height: 2px;
+        }
+        ::-webkit-scrollbar-button {
+          width: 0px;
+          height: 0px;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #e1e1e1;
+          border: 0px none #ffffff;
+          border-radius: 50px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #ffffff;
+        }
+        ::-webkit-scrollbar-thumb:active {
+          background: #000000;
+        }
+        ::-webkit-scrollbar-track {
+          background: #666666;
+          border: 0px none #ffffff;
+          border-radius: 50px;
+        }
+        ::-webkit-scrollbar-track:hover {
+          background: #666666;
+        }
+        ::-webkit-scrollbar-track:active {
+          background: #333333;
+        }
+        ::-webkit-scrollbar-corner {
+          background: transparent;
+        }
+
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;  /* Preferred icon size */
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+
+            /* Support for all WebKit browsers. */
+            -webkit-font-smoothing: antialiased;
+            /* Support for Safari and Chrome. */
+            text-rendering: optimizeLegibility;
+
+            /* Support for Firefox. */
+            -moz-osx-font-smoothing: grayscale;
+
+            /* Support for IE. */
+            font-feature-settings: 'liga';
+            }
+    </style>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap');
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background: #222;
+            color: #eed;
+            font-family: 'Ubuntu Mono', monospace;
+            font-size: 16px;
+        }
+        
+        div, p {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            cursor: default;
+        }
+
+        .button {
+            cursor: pointer;
+            padding: 12px;
+            border: 1px solid #a3a3a3;
+            position: relative;
+            border-radius: 2px;
+        }
+
+        .button:after {
+            position: absolute;
+            content: "";
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: 0.25s ease;
+            background: red;
+            opacity: 0;
+        }
+
+        .button:hover:after {
+            opacity: 0.2;
+        }
+
+        .app {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: auto;
+        }
+
+        .app[data-night-mode="0"] {
+            background: #ddd;
+            color: #111;
+        }
+
+        .app[data-night-mode="0"] .button {
+            border: 1px solid #111;
+        }
+
+        .app[data-night-mode="0"] .logcat {
+            background: #eee;
+            border: 1px solid #111;
+        }
+
+        .app[data-night-mode="0"] .logcat .header {
+            background: #ddd;
+            font-weight: bold;
+        }
+  
+        .app .button.setup {
+            position: absolute;
+        }
+
+        .app > .menu {
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            user-select: none;
+            padding: 24px 12px;
+        }
+
+        .app > .menu .button {
+            margin-bottom: 12px;
+        }
+
+        .logcats_container {
+            width: 100%;
+            height: auto;
+            overflow: hidden;
+            display: grid;
+            grid-gap: 12px;
+            padding: 24px 24px 48px 80px;
+        }
+
+        .logcat {
+            border-radius: 2px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: black;
+            border: 1px solid #eee;
+        }
+
+      
+        .logcat .header {
+            height: 32px;
+            background: #090909;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .logcat .content {
+            height: calc(100% - 32px);
+            padding: 12px;
+            display: flex;
+        }
+
+        .logcat .content .lines {
+            width: 100%;
+            height: 100%;
+            padding: 2px 8px 2px 2px;
+            overflow: auto;
+        }
+
+        .logcat .content .lines .line {
+            margin: 2px 0;
+            border-radius: 2px;
+            background: #8d8d8d17;
+            padding: 2px 4px;
+            transition: background 0.3s ease;
+            position: relative;
+            flex-direction: row;
+        }
+
+        .logcat .content .lines .line:before {
+            content: "";
+            width: 8px;
+            background: red;
+            height: 8px;
+            margin-right: 12px;
+            border-radius: 2px;
+            transform: translate(50%, 50%);
+            /* position: absolute; */
+            left: 0;
+            top: 0;
+        }
+
+        .logcat .content .lines .line.new_line {
+            background-color: #2196f329;
+        }
+
+        .logcat .content .lines .line:hover {
+            background: #f4433622;
+        }
+
+        .logcat .content .lines .line[data-color="CYAN"]     { color: #009688; }
+        .logcat .content .lines .line[data-color="RED"]      { color: #f44336; }
+        .logcat .content .lines .line[data-color="MAGENTA"]  { color: #9c27b0; }
+        .logcat .content .lines .line[data-color="YELLOW"]   { color: #ffeb3b; }
+        .logcat .content .lines .line[data-color="GREEN"]    { color: #8bc34a; }
+        .logcat .content .lines .line[data-color="BLUE"]     { color: #2196f3; }
+
+        .logcat .content .lines .line[data-color="CYAN"]:before     { background: #009688; }
+        .logcat .content .lines .line[data-color="RED"]:before      { background: #f44336; }
+        .logcat .content .lines .line[data-color="MAGENTA"]:before  { background: #9c27b0; }
+        .logcat .content .lines .line[data-color="YELLOW"]:before   { background: #ffeb3b; }
+        .logcat .content .lines .line[data-color="GREEN"]:before    { background: #8bc34a; }
+        .logcat .content .lines .line[data-color="BLUE"]:before     { background: #2196f3; }
+
+        .logcats_container[data-grid="4x3"] { grid-template-columns: 1fr 1fr 1fr 1fr; }
+        .logcats_container[data-grid="4x3"] .logcat {  height: 30vh; }
+
+        .logcats_container[data-grid="4x2"] { grid-template-columns: 1fr 1fr 1fr 1fr; }
+        .logcats_container[data-grid="4x2"] .logcat {  height: 45vh; }
+
+        .logcats_container[data-grid="3x2"] { grid-template-columns: 1fr 1fr 1fr; }
+        .logcats_container[data-grid="3x2"] .logcat {  height: 45vh; }
+
+        .logcats_container[data-grid="2x2"] { grid-template-columns: 1fr 1fr; }
+        .logcats_container[data-grid="2x2"] .logcat {  height: 45vh; }
+
+        .logcats_container[data-grid="2x1"] { grid-template-columns: 1fr 1fr; }
+        .logcats_container[data-grid="2x1"] .logcat {  height: 100vh; }
+
+        .logcats_container[data-grid="1x1"] { grid-template-columns: 1fr; }
+        .logcats_container[data-grid="1x1"] .logcat {  height: 100vh; }
+    </style>
+    <body>
+        <div class="app">
+            <div class="logcats_container" data-grid="2x2">
+                
+            </div>
+            <div class="menu">
+                <div class="button view" onclick="on_view_switch()">
+                    <i class="material-icons">dashboard</i>
+                </div>
+                <div class="button theme" onclick="on_theme_switch()">
+                    <i class="material-icons">nights_stay</i>
+                </div>
+                <div class="button network" onclick="on_host_switch()">
+                    <i class="material-icons">wifi</i>
+                </div>
+            </div>
+        </div>
+        <script>
+            let state = new Proxy ( {
+                max_log: 100,
+                current_view: 0,
+                night_mode: true,
+                host: "localhost",
+                port: 9900
+            }, {
+                set ( target, prop, value ) {
+                    target[prop] = value
+                    save_state()
+                }
+            } )
+
+            let views = [
+                "4x3",
+                "4x2",
+                "3x2",
+                "2x2",
+                "2x1",
+                "1x1",
+            ]
+
+            let socket = null
+            let logcats = {}
+            let prev_session_id = null
+            let connection_in_progress = false
+
+            
+            class LogCat {
+                constructor ( logcat_id ) {
+                    this.element = template( "#logcat" )
+                    select( ".header .caption", this.element ).innerHTML = logcat_id
+                    select( ".logcats_container" ).appendChild( this.element )
+                    this.lines_el = select ( ".content .lines", this.element )
+                }
+
+                put_line ( text, color ) {
+                    let rect = this.lines_el.getBoundingClientRect()
+
+                    while ( this.lines_el.children.length > state.max_log ) {
+                        this.lines_el.removeChild( this.lines_el.children[0] )
+                    }
+
+                    let scroll_down = this.lines_el.scrollTop>=this.lines_el.scrollHeight - (rect.height + 2)
+                    let line = parse_html(`<div data-color="${color}" class="line new_line"><div>${ text }</div></div>`)
+                    setTimeout(()=>{
+                        line.classList.remove("new_line")
+                    }, 1000)
+                    this.lines_el.appendChild( line )
+                    if (scroll_down) this.lines_el.scrollTop = this.lines_el.scrollHeight
+                }
+
+                kill () {
+                    console.log("killed")
+                    this.element.remove()
+                }
+            }
+
+    
+            function kill_all_logcats () {
+                for ( var k in logcats ) {
+                    logcats[k].kill()
+                    delete logcats[k]
+                }
+            }
+
+            function on_log ( message ) {
+                log_data = message.data
+                console.log(message)
+                if ( message.thread_id !== undefined ) {
+                    let t = `THREAD #${message.thread_id}`
+                    logcats[ t ] = logcats[ t ] || new LogCat( t.toString() )
+                    logcats[ t ].put_line( log_data.text, log_data.text_color )
+                }
+
+                if ( log_data.source !== undefined ) {
+                    let t = log_data.source
+                    logcats[ t ] = logcats[ t ] || new LogCat( t.toString() )
+                    logcats[ t ].put_line( log_data.text, log_data.text_color )
+                }
+            }
+
+            function on_message ( message ) {
+                if ( message.session_id !== undefined && prev_session_id !== null && message.session_id !== prev_session_id ){
+                    kill_all_logcats()
+                }
+                
+
+                switch(message.event){
+                    case "log":
+                        on_log( message )
+                    break
+                    case "ping":
+                        console.log(`[ping] ${message.timestamp}`)
+                    break;
+                    case "started":
+                        console.log(1)
+                    break;
+                    default:
+                        console.log("unknown event")
+                }
+
+                if ( message.session_id !== undefined ){
+                    prev_session_id = message.session_id
+                }
+            }
+
+            function connect_ws () {
+                connection_in_progress = true
+                console.log(`trying to connect ws://${state.host}:${state.port}/`)
+                select(".button.network").setAttribute("title", `${state.host}:${state.port}`)
+                
+                if ( socket !== null ) {
+                    socket.close()
+                    socket = null
+                }
+
+                try { socket = window.active_socket = new WebSocket( `ws://${state.host}:${state.port}/` ); } 
+                catch ( err ) { setTimeout(connect_ws, 100); return; }
+                socket.onopen = (e)=>{ console.log("[open] Connection established"); }
+                socket.onmessage = (e)=>{
+                    try { data = JSON.parse(e.data); }
+                    catch ( err ) { console.log(err); return; }
+                    on_message( data )
+                }
+                socket.onclose = ()=>{
+                    if ( connection_in_progress !== true ){
+                        socket = null
+                        connect_ws()
+                    }
+                }
+                socket.onerror = function(error) {
+                    console.log(`[error]`, error);
+                };
+
+                connection_in_progress = false
+            }
+
+            function select ( selector, el ) { el = el||document; return el.querySelector( selector ) }
+            function select_all ( selector, el ) { el = el||document; return el.querySelectorAll( selector ) }
+            function parse_html ( html ) { let d = document.createElement( "div" );  d.innerHTML = html; return d.children[0]; }
+            function template ( selector ) { 
+                let r = select( selector ); 
+                let c = r.content instanceof DocumentFragment ? r.content.children[0] : r.content
+                return document.importNode( c, true ); 
+            }
+
+            function load_state () {
+                let data = localStorage.getItem( "state" )
+                if ( typeof data === "string" ) {
+                    data = JSON.parse( data )
+                    data = {
+                        ...state,
+                        ...data
+                    }
+
+                    state = new Proxy( data, {
+                        set ( target, prop, value ) {
+                            target[prop] = value
+                            save_state()
+                        }
+                    } )
+
+                    if ( state.night_mode !== undefined ) {
+                        select( ".app" ).setAttribute( "data-night-mode", state.night_mode ? "1" : "0" )
+                    }
+
+                    if ( state.current_view !== undefined ) {
+                        select( ".logcats_container" ).setAttribute( "data-grid", views[state.current_view] )
+                    }
+                }
+            }
+
+            function save_state () {
+                let json = JSON.stringify( state )
+                localStorage.setItem( "state", json )
+            }
+
+            document.addEventListener( "DOMContentLoaded", ()=>{
+                load_state()
+                select(".button.view").setAttribute("title", views[state.current_view] )
+                connect_ws()
+            } )
+        </script>
+        <script>
+            function on_view_switch () {
+                state.current_view = ( state.current_view+1 ) % views.length
+                select(".button.view").setAttribute("title", views[state.current_view] )
+                select( ".logcats_container" ).setAttribute( "data-grid", views[state.current_view] )
+            }
+
+            function on_theme_switch () {
+                state.night_mode = !state.night_mode
+                select( ".app" ).setAttribute( "data-night-mode", state.night_mode ? "1" : "0" )
+            }
+
+            function on_host_switch () {
+                state.host = prompt("Please enter host, e.g. 192.168.1.101 or localhost")
+                state.port = prompt("Please enter port, e.g. 8000")
+                select(".button.network").setAttribte("title", `${state.host}:${state.port}`)
+                kill_all_logcats()
+                connect_ws()
+            }
+        </script>
+        <template id="logcat">
+            <div class="logcat">
+                <div class="header">
+                    <div class="caption"></div>
+                </div>
+                <div class="content">
+                    <div class="lines"></div>   
+                </div>
+            </div>  
+        </template> 
+       
+    </body>
+</html>
