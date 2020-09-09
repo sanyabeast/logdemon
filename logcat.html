@@ -269,18 +269,17 @@
                 <div class="button theme" onclick="on_theme_switch()">
                     <i class="material-icons">nights_stay</i>
                 </div>
-                <div class="button network" onclick="on_host_switch()">
+                <div class="button network" onclick="on_url_switch()">
                     <i class="material-icons">wifi</i>
                 </div>
             </div>
         </div>
         <script>
             let state = new Proxy ( {
-                max_log: 100,
+                max_log: 500,
                 current_view: 0,
                 night_mode: true,
-                host: "localhost",
-                port: 9900
+                url: "localhost"
             }, {
                 set ( target, prop, value ) {
                     target[prop] = value
@@ -311,7 +310,24 @@
                     this.lines_el = select ( ".content .lines", this.element )
                 }
 
+                process_codes( codes ) {
+                    for ( let i = 0; i < codes.length; i++ ){
+                        let c = codes[i]
+                        switch (c){
+                            case "***remove_line***":
+                            let last_child = this.lines_el.children[this.lines_el.children.length - 1]
+                            this.lines_el.children.length > 0 && this.lines_el.removeChild( last_child )
+                            break
+                        }
+                    }
+                }
+
                 put_line ( text, color ) {
+                    if ( text.match(/\*\*\*+[a-zA-Z_]+\*\*\*/gm) ) {
+                        this.process_codes( text.match(/\*\*\*+[a-zA-Z_]+\*\*\*/gm) )
+                        return
+                    }
+
                     let rect = this.lines_el.getBoundingClientRect()
 
                     while ( this.lines_el.children.length > state.max_log ) {
@@ -343,17 +359,17 @@
 
             function on_log ( message ) {
                 log_data = message.data
-                console.log(message)
+                console.log("[logcat] message log")
                 if ( message.thread_id !== undefined ) {
                     let t = `THREAD #${message.thread_id}`
                     logcats[ t ] = logcats[ t ] || new LogCat( t.toString() )
-                    logcats[ t ].put_line( log_data.text, log_data.text_color )
+                    logcats[ t ].put_line( log_data.text, log_data.text_color || log_data.color )
                 }
 
                 if ( log_data.source !== undefined ) {
                     let t = log_data.source
                     logcats[ t ] = logcats[ t ] || new LogCat( t.toString() )
-                    logcats[ t ].put_line( log_data.text, log_data.text_color )
+                    logcats[ t ].put_line( log_data.text, log_data.text_color || log_data.color )
                 }
             }
 
@@ -384,15 +400,15 @@
 
             function connect_ws () {
                 connection_in_progress = true
-                console.log(`trying to connect ws://${state.host}:${state.port}/`)
-                select(".button.network").setAttribute("title", `${state.host}:${state.port}`)
+                console.log(`trying to connect ws://${state.url}/`)
+                select(".button.network").setAttribute("title", `${state.url}`)
                 
                 if ( socket !== null ) {
                     socket.close()
                     socket = null
                 }
 
-                try { socket = window.active_socket = new WebSocket( `ws://${state.host}:${state.port}/` ); } 
+                try { socket = window.active_socket = new WebSocket( `ws://${state.url}/` ); } 
                 catch ( err ) { setTimeout(connect_ws, 100); return; }
                 socket.onopen = (e)=>{ console.log("[open] Connection established"); }
                 socket.onmessage = (e)=>{
@@ -471,10 +487,9 @@
                 select( ".app" ).setAttribute( "data-night-mode", state.night_mode ? "1" : "0" )
             }
 
-            function on_host_switch () {
-                state.host = prompt("Please enter host, e.g. 192.168.1.101 or localhost")
-                state.port = prompt("Please enter port, e.g. 8000")
-                select(".button.network").setAttribte("title", `${state.host}:${state.port}`)
+            function on_url_switch () {
+                state.url = prompt("Please enter url, e.g. 192.168.1.101:12000")
+                select(".button.network").setAttribte("title", `${state.url}`)
                 kill_all_logcats()
                 connect_ws()
             }

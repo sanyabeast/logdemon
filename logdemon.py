@@ -41,6 +41,8 @@ class HTTPConnectionHandler(http.server.BaseHTTPRequestHandler):
         try:
             d = json.loads(urllib.parse.unquote(self.path[1:len(self.path)]))
             WS.instance.broadcast( d )
+            self.send_response(code=200, message=None)
+            self.end_headers()
         except Exception as e:
             print(f"error while parsing http event: {str(e)}")
 
